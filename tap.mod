@@ -31,6 +31,9 @@ maximize - sum(i in objets) sum(j in objets) distance[i][j] * x[i][j];// (2)
 
 //Constraints see Overleaf
 subject to {
+//epsilon-consraint on the Knapsack objective
+sum(i in objets) s[i]*valeur[i] >= 450;
+
 sum( i in objets ) poids[i] * s[i] <= poidsMax; // (5)
  
 forall(i in objets) sum(j in 0..nbObjet+1) x[i][j] <= 1;// (3)
@@ -41,16 +44,19 @@ forall (i in objets) sum(j in 0..nbObjet+1) x[i][j] == sum(j in 0..nbObjet+1) x[
 
 forall (i in objets) sum(j in 0..nbObjet+1) x[i][j] == s[i];// (7)
   
-//temp fix
+//temp fix, find way to have sum on i != j instead
 forall (i in objets) x[i][i] == 0;
 
 sum(i in objets) x[0][i] == 1;// (8)
-sum(i in objets) x[i][0] == 0;
+sum(i in objets) x[i][0] == 0;// (9)
 
 sum(i in objets) x[i][nbObjet+1] == 1;// (8)
-sum(i in objets) x[nbObjet+1][i] == 0;
-
-//epsilon-consraint on the Knapsack objective
-sum(i in objets) s[i]*valeur[i] >= 80;
+sum(i in objets) x[nbObjet+1][i] == 0;// (9)
+  
+// Sub-Tour elimination  
+forall(i in objets) forall(j in objets) x[i][j] + x[j][i] <= 1; // only eliminates 2-Cycles
+//trying to count edges ....
+sum(i in 0..nbObjet+1) sum(j in 0..nbObjet+1) x[i][j] == sum(k in objets) s[k] + 1;
+sum(i in objets) sum(j in objets) x[i][j] == sum(k in objets) s[k] - 1;
 
 }
